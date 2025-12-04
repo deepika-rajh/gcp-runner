@@ -1,0 +1,32 @@
+name: VM workflow sync
+
+on:
+  push:
+    paths:
+      - ".github/workflows/**"
+    branches:
+      - main
+      - development
+
+jobs:
+  sync:
+    runs-on: [self-hosted, linux]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync workflows to VM
+        run: |
+          VM_TARGET="/home/cto/build_script"  # Path where you want workflows
+          echo "Syncing .github/workflows/* to $VM_TARGET"
+          mkdir -p "$VM_TARGET"
+          cp -a .github/workflows/* "$VM_TARGET"/
+          chmod 644 "$VM_TARGET"/*
+          echo "Sync complete."
+
+      - name: Verify files on VM
+        run: |
+          echo "Files now present in VM target:"
+          ls -l /home/cto/build_script
+
